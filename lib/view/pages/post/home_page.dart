@@ -1,33 +1,36 @@
 import 'package:blog/core/size.dart';
+import 'package:blog/view/pages/post/home_page_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
+  const HomePage({super.key});
+
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   var refreshKey = GlobalKey<RefreshIndicatorState>();
-  var scaffodKey = GlobalKey<ScaffoldState>();
+  var scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
+    HomePageViewModel hvm = ref.watch(homePageViewModel.notifier);
     return Scaffold(
-      key: scaffodKey,
+      key: scaffoldKey,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          if (scaffodKey.currentState!.isDrawerOpen) {
-            scaffodKey.currentState!.openEndDrawer();
+          if (scaffoldKey.currentState!.isDrawerOpen) {
+            scaffoldKey.currentState!.openEndDrawer();
           } else {
-            scaffodKey.currentState!.openDrawer();
+            scaffoldKey.currentState!.openDrawer();
           }
         },
         child: Icon(Icons.code),
       ),
       drawer: _navigation(context),
-      appBar: AppBar(
-        title: Text("false"),
-      ),
+      appBar: _buildAppBarTitle(hvm),
       body: RefreshIndicator(
         key: refreshKey,
         onRefresh: () async {},
@@ -48,6 +51,18 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  AppBar _buildAppBarTitle(HomePageViewModel hvm) {
+    if (hvm.ap.isLogin) {
+      return AppBar(
+        title: Text("로그인한 유저 이름 : ${hvm.ap.jwtToken}"),
+      );
+    } else {
+      return AppBar(
+        title: Text("로그인 되지 않은 상태 입니다."),
+      );
+    }
   }
 
   Widget _navigation(BuildContext context) {
@@ -76,7 +91,7 @@ class _HomePageState extends State<HomePage> {
               TextButton(
                 onPressed: () {
                   //Navigator.pop(context);
-                  scaffodKey.currentState!.openEndDrawer();
+                  scaffoldKey.currentState!.openEndDrawer();
                 },
                 child: Text(
                   "회원정보보기",
